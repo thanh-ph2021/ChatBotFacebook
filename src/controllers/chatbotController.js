@@ -73,8 +73,40 @@ let postWebhook = (req, res) => {
 
 // Handles messages events
 async function handleMessage(sender_psid, received_message) {
-    let response;
+    if (received_message && received_message.quick_reply && received_message.quick_reply.payload) {
+        let payload = received_message.quick_reply.payload;
+        switch (payload) {
+            case "ASOFT-ERP":
+                break;
+            case "":
+                break;
+            case "ASOFT-OO":
+                break;
+            case "":
+                break;
+            case "ASOFT-HRM":
+                break;
+            case "products":
+                await chatbotServices.sendProducts(sender_psid);
+                break;
+            case "services":
+                await chatbotServices.sendServices(sender_psid);
+                break;
+            case "company":
+                await chatbotServices.sendAboutCompany(sender_psid);
+                break;
+            case "solution":
+                await chatbotServices.sendSolution(sender_psid);
+                break;
+            case "me":
+                await chatbotServices.sendAboutMe(sender_psid);
+                break;
+        }
 
+        return;
+    }
+
+    let response;
     // Checks if the message contains text
     if (received_message.text) {
         console.log(received_message.text);
@@ -85,75 +117,7 @@ async function handleMessage(sender_psid, received_message) {
                     "text": "Chào anh/chị. Em có thể giúp gì cho anh/chị?",
                 }
                 // Sends the response message
-                callSendAPI(sender_psid, response);
-                break;
-            case 'sản phẩm':
-                response = { "text": "Công ty của tôi có rất nhiều sản phẩm, cụ thể có 5 cái điển hình." }
-                await chatbotServices.sendMessage(sender_psid, response);
-                response = {
-                    "text": "Bạn muốn xem cái nào?",
-                    "quick_replies": [
-                        {
-                            "content_type": "text",
-                            "title": "ASOFT-ERP",
-                            "payload": "ASOFT-ERP",
-                        }, {
-                            "content_type": "text",
-                            "title": "ASOFT SUPERAPPS",
-                            "payload": "ASOFT SUPERAPPS",
-                        }, {
-                            "content_type": "text",
-                            "title": "ASOFT-OO",
-                            "payload": "ASOFT-OO",
-                        }, {
-                            "content_type": "text",
-                            "title": "ASOFT-CRM",
-                            "payload": "ASOFT-CRM",
-                        }, {
-                            "content_type": "text",
-                            "title": "ASOFT-HRM",
-                            "payload": "ASOFT-HRM",
-                        }
-                    ]
-                }
-                await chatbotServices.sendMessage(sender_psid, response);
-                break;
-            case 'dịch vụ':
-                response = { "text": "Bạn vui lòng vào đây nha:\n https://asoft.com.vn/vn/dich-vu/tu-van-he-thong-hoa-va-tu-dong-hoa-he-thong-quan-tri/22" }
-                callSendAPI(sender_psid, response);
-                break;
-            case 'công ty':
-                response = { "text": "Bạn vui lòng vào đây nha:\n https://asoft.com.vn/vn/gioi-thieu//" }
-                callSendAPI(sender_psid, response);
-                break;
-            case 'giải pháp':
-                response = { "text": "Bạn vui lòng vào đây nha:\n https://asoft.com.vn/vn/giai-phap-erp" }
-                callSendAPI(sender_psid, response);
-                break;
-
-            case 'tôi':
-                response = { "text": "Bạn không cần biết đâu!" }
-                callSendAPI(sender_psid, response);
-                break;
-            case 'asoft-erp':
-                response = { "text": "Hoạch định nguồn nhân lực\nBạn vui lòng vào đây nha:\nhttps://asoft.com.vn/vn/phan-mem-quan-ly/hoach-dinh-nguon-luc-doanh-nghiep-asoft-erp/1/" }
-                callSendAPI(sender_psid, response);
-                break;
-            case 'asoft superapps':
-                response = { "text": "Siêu ứng dụng di động\nBạn vui lòng vào đây nha:\nhttps://asoft.com.vn/vn/phan-mem-quan-ly/sieu-ung-dung-di-dong-asoft-superapps/16/" }
-                callSendAPI(sender_psid, response);
-                break;
-            case 'asoft-oo':
-                response = { "text": "Văn phòng điện tử\nBạn vui lòng vào đây nha:\nhttps://asoft.com.vn/vn/phan-mem-quan-ly/van-phong-dien-tu---online-office-asoft-oo/14/" }
-                callSendAPI(sender_psid, response);
-                break;
-            case 'asoft-crm':
-                response = { "text": "Quản lý quan hệ khách hàng\nBạn vui lòng vào đây nha:\nhttps://asoft.com.vn/vn/phan-mem-quan-ly/quan-ly-quan-he-khach-hang-asoft-crm/10/" }
-                callSendAPI(sender_psid, response);
-                break;
-            case 'asoft-hrm':
-                response = { "text": "Quản trị nhân sự\nBạn vui lòng vào đây nha:\nhttps://asoft.com.vn/vn/phan-mem-quan-ly/quan-tri-nhan-su-tien-luong-asoft-hrm/9/" }
-                callSendAPI(sender_psid, response);
+                chatbotServices.sendMessage(sender_psid, response);
                 break;
             default:
                 let random = Math.floor(Math.random() * array1.length);
@@ -161,7 +125,7 @@ async function handleMessage(sender_psid, received_message) {
                     "text": array1[random],
                 }
                 // Sends the response message
-                callSendAPI(sender_psid, response);
+                chatbotServices.sendMessage(sender_psid, response);
         }
     } else if (received_message.attachments) {
         // Get the URL of the message attachment
@@ -194,8 +158,6 @@ async function handleMessage(sender_psid, received_message) {
         // Sends the response message
         await chatbotServices.sendMessage(sender_psid, response);
     }
-
-
 }
 
 // Handles messaging_postbacks events
@@ -220,6 +182,9 @@ async function handlePostback(sender_psid, received_postback) {
         case 'GET_STARTED_PAYLOAD':
             await chatbotServices.sendMessageWelcomeNewUser(sender_psid);
             break;
+        case 'MENU':
+            await chatbotServices.sendMainMenu(sender_psid);
+            break;
     }
 }
 
@@ -235,17 +200,22 @@ let handleSetupInfor = (req, res) => {
                 "composer_input_disabled": false,
                 "call_to_actions": [
                     {
+                        "type": "postback",
+                        "title": "Về menu chính",
+                        "payload": "MENU"
+                    },
+                    {
                         "type": "web_url",
-                        "title": "Website",
+                        "title": "Vào website của công ty",
                         "url": "https://asoft.com.vn/",
                         "webview_height_ratio": "full"
                     },
                     {
                         "type": "web_url",
-                        "title": "Youtube",
+                        "title": "Vào trang youtube của công ty",
                         "url": "https://www.youtube.com/user/asoftsolution",
                         "webview_height_ratio": "full"
-                    }
+                    },
                 ]
             }
         ]
